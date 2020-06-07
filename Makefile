@@ -1,13 +1,15 @@
-TARGET ?= kovagoz/php:7.2-alpine
+TAG ?= kovagoz/php:7.2-apache
 
 .PHONY: build
 build:
-	docker build -t $(TARGET) .
+	docker build -t $(TAG) --target base .
+	docker build -t $(TAG)-dev .
 
 .PHONY: test
 test:
-	docker run --rm -it $(TARGET)
+	docker run --rm -it $(TAG)
 
-.PHONY: release
-release:
-	docker push $(TARGET)
+.PHONY: push
+push:
+	docker push $(TAG)
+	docker push $(TAG)-dev
