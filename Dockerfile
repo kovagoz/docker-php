@@ -1,30 +1,19 @@
-FROM php:7.2-apache AS base
-
-RUN set -x && \
-	apt-get update && \
-	apt-get install -y --no-install-recommends libpq-dev && \
-	docker-php-ext-install pdo_mysql pdo_pgsql && \
-	rm -rf /var/lib/apt/lists/*
-
-FROM base AS dev
+FROM php:7.4-apache AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+# Install locales
 RUN set -x && \
 	apt-get update && \
-	apt-get install -y --no-install-recommends make zsh git netcat && \
+	apt-get install locales -y --no-install-recommends && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pecl install xdebug-2.6.1 && docker-php-ext-enable xdebug
+# Install APCu
+RUN set -x && \
+	mkdir /root/tmp && \
+	pear config-set temp_dir /root/tmp && \
+	printf "\n" | pecl install apcu-5.1.18 && \
+	docker-php-ext-enable apcu
 
-# Install Composer
-RUN curl -sL https://getcomposer.org/download/1.8.3/composer.phar > /usr/local/bin/composer
-RUN chmod +x /usr/local/bin/composer
-
-# Install PHPUnit
-RUN curl -sL https://phar.phpunit.de/phpunit-8.phar > /usr/local/bin/phpunit
-RUN chmod +x /usr/local/bin/phpunit
-
-# Install PHP_CodeSniffer
-RUN curl -sL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar > /usr/local/bin/phpcs
-RUN chmod +x /usr/local/bin/phpcs
+# Install the PDO MySQL driver
+RUN docker-php-ext-install pdo_mysql
