@@ -1,4 +1,4 @@
-FROM php:7.4-apache AS base
+FROM php:8.0-apache AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -12,7 +12,7 @@ RUN set -x && \
 RUN set -x && \
 	mkdir /root/tmp && \
 	pear config-set temp_dir /root/tmp && \
-	printf "\n" | pecl install apcu-5.1.18 && \
+	printf "\n" | pecl install apcu-5.1.19 && \
 	docker-php-ext-enable apcu
 
 # Install the PDO MySQL driver
